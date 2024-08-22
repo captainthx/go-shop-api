@@ -1,0 +1,9 @@
+services:
+  mysql:
+    image: 'mysql:5.7'
+    environment:
+      - 'MYSQL_DATABASE=shop'
+      - 'MYSQL_ROOT_PASSWORD=1234'
+    ports:
+      - '3306:3306'
+
