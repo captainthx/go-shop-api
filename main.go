@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"go-shop-api/adapters/handler"
 	"go-shop-api/adapters/repository"
+	"go-shop-api/config"
 	"go-shop-api/core/domain"
 	"go-shop-api/core/service"
-	"log"
+	"go-shop-api/logs"
 	"net/http"
 	"os"
 	"time"
@@ -25,50 +26,58 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		logs.Error(err)
 	}
-
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	databaseName := os.Getenv("DB_NAME")
-	username := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-
+	// Initialize the configuration
+	config.Init()
 	// create dsn for mysql gorm
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, databaseName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-		panic(err)
+		logs.Error(err)
 	}
 
 	// Create or modify the database tables based on the model structs found in the imported package
 	err = db.AutoMigrate(&domain.User{}, &domain.Product{}, &domain.ProductImage{}, &domain.Order{}, &domain.OrderItem{}, &domain.Transaction{})
 	if err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+		logs.Error(err)
 		return // exit if migration fails
 	}
 
-	initGin(db)
+	initRoute(db)
 
 }
 
-func initGin(db *gorm.DB) {
+func initRoute(db *gorm.DB) {
+	gin.SetMode(config.Mode)
 
 	router := gin.Default()
-
-	authRepo := repository.NewauthRepositoryDB(db)
-	authService := service.NewAuthService(authRepo)
-	authHandler := handler.NewHttpAuthHandler(authService)
+	router.MaxMultipartMemory = 2 << 20 // 2 MB
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Hello, World!",
 		})
 	})
+
+	// file router
+
+	fileService := service.NewFileService()
+	fileHandler := handler.NewHttpFileHandler(fileService)
+
+	file := router.Group("/v1/file")
+
+	file.POST("/upload", fileHandler.UploadFile)
+	file.GET("/serve/:fileName", fileHandler.ServeFile)
+
+	// auth router
+
+	authRepo := repository.NewauthRepositoryDB(db)
+	authService := service.NewAuthService(authRepo)
+	authHandler := handler.NewHttpAuthHandler(authService)
 
 	auth := router.Group("/v1/auth")
 
@@ -87,10 +96,9 @@ func initGin(db *gorm.DB) {
 		})
 	})
 
-	err := router.Run(":3000")
+	err := router.Run(":" + config.ServerPort)
 	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-		panic(err)
+		logs.Error(err)
 	}
 
 }

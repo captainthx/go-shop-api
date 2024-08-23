@@ -1,10 +1,21 @@
 package ports
 
-import "go-shop-api/core/domain"
+import (
+	"go-shop-api/core/domain"
+	"mime/multipart"
+
+	"github.com/gin-gonic/gin"
+)
 
 type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
+}
+
+type UpLodaFileResponse struct {
+	FileName string
+	FileUrl  string
+	Size     float32
 }
 
 type AuthService interface {
@@ -20,4 +31,9 @@ type AuthRepository interface {
 type UserRepository interface {
 	FindByID(id uint) (*domain.User, error)
 	FindOrderByUser(user *domain.User) ([]domain.Order, error)
+}
+
+type FileService interface {
+	UpLoadFile(file multipart.FileHeader, c *gin.Context) (*UpLodaFileResponse, error)
+	ServeFile(fileName string) (string, error)
 }

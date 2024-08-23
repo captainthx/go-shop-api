@@ -1,14 +1,17 @@
 package service
 
 import (
-	"errors"
+	"go-shop-api/adapters/errs"
 	"go-shop-api/core/domain"
 	"go-shop-api/core/ports"
+	"go-shop-api/logs"
 	"go-shop-api/utils"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,29 +27,39 @@ func NewAuthService(repo ports.AuthRepository) ports.AuthService {
 // CreateUser implements UserService.
 func (u *userService) CreateUser(user *domain.User) error {
 	if invalid, err := utils.InvalidName(user.Name); invalid || err != nil {
-		return err
+		logs.Error(err)
+		return errs.AppError{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}
 	}
 
 	if invalid, err := utils.InvalidUsername(user.Username); invalid || err != nil {
-		return err
+		logs.Error(err)
+		return errs.NewBadRequestError(err.Error())
 	}
 
 	if invalid, err := utils.InvalidPassword(user.Password); invalid || err != nil {
-		return err
+		logs.Error(err)
+		return errs.NewBadRequestError(err.Error())
 	}
 
 	if invalid, err := utils.InvalidEmail(user.Email); invalid || err != nil {
-		return err
+		logs.Error(err)
+		return errs.NewBadRequestError(err.Error())
 	}
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return err
+		logs.Error(err)
+		return errs.NewBadRequestError("Invalid password")
 	}
 	user.Password = string(hashPassword)
 
-	if result := u.repo.Create(user); result != nil {
-		return result
+	err = u.repo.Create(user)
+	if err != nil {
+		logs.Error(err)
+		return errs.NewUnexpectedError("unexpected error")
 	}
 
 	return nil
@@ -55,23 +68,31 @@ func (u *userService) CreateUser(user *domain.User) error {
 // LogIn implements ports.AuthService.
 func (u *userService) LogIn(username string, password string) (*ports.LoginResponse, error) {
 	if invalid, err := utils.InvalidUsername(username); invalid || err != nil {
-		return nil, err
+		logs.Error(err)
+		return nil, errs.NewBadRequestError(err.Error())
 	}
 
 	if invalid, err := utils.InvalidPassword(password); invalid || err != nil {
-		return nil, err
+		logs.Error(err)
+		return nil, errs.NewBadRequestError(err.Error())
 	}
 
 	resutl, err := u.repo.FindByUserName(username)
 
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, errs.NewNotFoundError("User not found")
+		}
+		logs.Error(err)
+
+		return nil, errs.NewUnexpectedError("unexpected error")
 	}
 
 	// compare the password
 	err = bcrypt.CompareHashAndPassword([]byte(resutl.Password), []byte(password))
 	if err != nil {
-		return nil, errors.New("invalid password")
+		logs.Error(err)
+		return nil, errs.NewBadRequestError("Invalid password")
 	}
 
 	loginResponse := &ports.LoginResponse{
