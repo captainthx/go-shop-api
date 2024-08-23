@@ -27,3 +27,4 @@ go.sum
 *.swp
 *.swo
 .DS_Store
+.env
