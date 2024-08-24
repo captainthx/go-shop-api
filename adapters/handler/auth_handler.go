@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"go-shop-api/adapters/errs"
 	"go-shop-api/core/domain"
 	"go-shop-api/core/ports"
 	"net/http"
@@ -30,12 +29,7 @@ func (h *HttpUserHandler) SignUp(c *gin.Context) {
 
 	err := h.service.CreateUser(user)
 	if err != nil {
-		appErr, ok := err.(errs.AppError)
-		if ok {
-			c.JSON(appErr.Code, gin.H{
-				"error": appErr.Message,
-			})
-		}
+		handlerError(c, err)
 		return
 	}
 
@@ -57,12 +51,7 @@ func (h *HttpUserHandler) SignIn(c *gin.Context) {
 	result, err := h.service.LogIn(user.Username, user.Password)
 
 	if err != nil {
-		appErr, ok := err.(errs.AppError)
-		if ok {
-			c.JSON(appErr.Code, gin.H{
-				"error": appErr.Message,
-			})
-		}
+		handlerError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"go-shop-api/adapters/errs"
 	"go-shop-api/core/ports"
 	"net/http"
 
@@ -20,23 +19,13 @@ func (h *HttpFileHandler) UploadFile(c *gin.Context) {
 
 	file, err := c.FormFile("file")
 	if err != nil {
-		appErr, ok := err.(errs.AppError)
-		if ok {
-			c.JSON(appErr.Code, gin.H{
-				"error": appErr.Message,
-			})
-		}
+		handlerError(c, err)
 		return
 	}
 
 	result, err := h.service.UpLoadFile(*file, c)
 	if err != nil {
-		appErr, ok := err.(errs.AppError)
-		if ok {
-			c.JSON(appErr.Code, gin.H{
-				"error": appErr.Message,
-			})
-		}
+		handlerError(c, err)
 		return
 	}
 
@@ -50,12 +39,7 @@ func (h *HttpFileHandler) ServeFile(c *gin.Context) {
 	fileName := c.Param("fileName")
 	filePath, err := h.service.ServeFile(fileName)
 	if err != nil {
-		appErr, ok := err.(errs.AppError)
-		if ok {
-			c.JSON(appErr.Code, gin.H{
-				"error": appErr.Message,
-			})
-		}
+		handlerError(c, err)
 		return
 	}
 
