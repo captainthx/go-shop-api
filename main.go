@@ -41,12 +41,20 @@ func main() {
 	}
 
 	// Create or modify the database tables based on the model structs found in the imported package
-	err = db.AutoMigrate(&domain.User{}, &domain.Product{}, &domain.ProductImage{}, &domain.Order{}, &domain.OrderItem{}, &domain.Transaction{})
+	err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(
+		&domain.User{},
+		&domain.Category{},
+		&domain.Product{},
+		&domain.ProductImage{},
+		&domain.Cart{},
+		&domain.CartItem{},
+		&domain.Order{},
+		&domain.OrderItem{},
+		&domain.Transaction{})
 	if err != nil {
 		logs.Error(err)
-		return // exit if migration fails
+		return
 	}
-
 	initRoute(db)
 
 }
@@ -84,14 +92,28 @@ func initRoute(db *gorm.DB) {
 	auth.POST("/sign-up", authHandler.SignUp)
 	auth.POST("/sign-in", authHandler.SignIn)
 
-	// Protected routes
+	// product router
+	prodcutCus := router.Group("/v1/product")
 
+	prodcutCus.GET("/", func(ctx *gin.Context) {})
+
+	// Protected routes
 	router.Use(RequireAuth)
 
 	router.GET("/", func(c *gin.Context) {
 		user := c.MustGet("user").(*domain.User)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello," + user.Role,
+			"user":    user,
+		})
+	})
+
+	// Admin routes
+	router.Use(adminOnly)
+	router.GET("/admin", func(c *gin.Context) {
+		user := c.MustGet("user").(*domain.User)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Hello, Admin",
 			"user":    user,
 		})
 	})
@@ -150,5 +172,16 @@ func RequireAuth(c *gin.Context) {
 
 	// Proceed to the next middleware or handler
 	c.Next()
+}
 
+func adminOnly(c *gin.Context) {
+	user := c.MustGet("user").(*domain.User)
+
+	if user.Role != domain.Role("admin") {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"message": "Forbidden",
+		})
+		return
+	}
+	c.Next()
 }
