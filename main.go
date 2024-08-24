@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	"go-shop-api/adapters/handler"
+	adminHandler "go-shop-api/adapters/handler/admin"
 	"go-shop-api/adapters/repository"
+	adminRepository "go-shop-api/adapters/repository/admin"
 	"go-shop-api/config"
 	"go-shop-api/core/domain"
 	"go-shop-api/core/service"
+	adminService "go-shop-api/core/service/admin"
 	"go-shop-api/logs"
 	"net/http"
 	"os"
@@ -81,8 +84,7 @@ func initRoute(db *gorm.DB) {
 	file.POST("/upload", fileHandler.UploadFile)
 	file.GET("/serve/:fileName", fileHandler.ServeFile)
 
-	// auth router
-
+	// auth user router
 	authRepo := repository.NewauthRepositoryDB(db)
 	authService := service.NewAuthService(authRepo)
 	authHandler := handler.NewHttpAuthHandler(authService)
@@ -91,6 +93,16 @@ func initRoute(db *gorm.DB) {
 
 	auth.POST("/sign-up", authHandler.SignUp)
 	auth.POST("/sign-in", authHandler.SignIn)
+
+	// auth admin router
+	authAdminRepo := adminRepository.NewAuthAdminRepositoryDB(db)
+	authAdminService := adminService.NewAuthAdminService(authAdminRepo)
+	authAdminHandler := adminHandler.NewHttpAdminHandler(authAdminService)
+
+	authAdmin := router.Group("/v1/admin/auth")
+
+	authAdmin.POST("/sign-up", authAdminHandler.SignUp)
+	authAdmin.POST("/sign-in", authAdminHandler.SignIn)
 
 	// product router
 	prodcutCus := router.Group("/v1/product")

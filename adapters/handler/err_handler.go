@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func handlerError(c *gin.Context, err error) {
+func HandlerError(c *gin.Context, err error) {
 
 	switch e := err.(type) {
 	case errs.AppError:

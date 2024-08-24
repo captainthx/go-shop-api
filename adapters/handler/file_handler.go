@@ -19,13 +19,13 @@ func (h *HttpFileHandler) UploadFile(c *gin.Context) {
 
 	file, err := c.FormFile("file")
 	if err != nil {
-		handlerError(c, err)
+		HandlerError(c, err)
 		return
 	}
 
 	result, err := h.service.UpLoadFile(*file, c)
 	if err != nil {
-		handlerError(c, err)
+		HandlerError(c, err)
 		return
 	}
 
@@ -39,7 +39,7 @@ func (h *HttpFileHandler) ServeFile(c *gin.Context) {
 	fileName := c.Param("fileName")
 	filePath, err := h.service.ServeFile(fileName)
 	if err != nil {
-		handlerError(c, err)
+		HandlerError(c, err)
 		return
 	}
 

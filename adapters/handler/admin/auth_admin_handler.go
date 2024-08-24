@@ -1,24 +1,23 @@
-package handler
+package adminHandler
 
 import (
+	"go-shop-api/adapters/handler"
 	"go-shop-api/core/domain"
-	"go-shop-api/core/ports"
+	adminPorts "go-shop-api/core/ports/admin"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// all the handler interfaces are defined here
-
-type httpUserHandler struct {
-	service ports.AuthService
+type HttpAdminHandler struct {
+	service adminPorts.AuthAdminService
 }
 
-func NewHttpAuthHandler(service ports.AuthService) *httpUserHandler {
-	return &httpUserHandler{service: service}
+func NewHttpAdminHandler(service adminPorts.AuthAdminService) *HttpAdminHandler {
+	return &HttpAdminHandler{service: service}
 }
 
-func (h *httpUserHandler) SignUp(c *gin.Context) {
+func (h *HttpAdminHandler) SignUp(c *gin.Context) {
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -27,18 +26,18 @@ func (h *httpUserHandler) SignUp(c *gin.Context) {
 		return
 	}
 
-	err := h.service.CreateUser(user)
+	err := h.service.CreateAdmin(user)
 	if err != nil {
-		HandlerError(c, err)
+		handler.HandlerError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "User created successfully",
+		"message": "Admin created successfully",
 	})
 }
 
-func (h *httpUserHandler) SignIn(c *gin.Context) {
+func (h *HttpAdminHandler) SignIn(c *gin.Context) {
 
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {
@@ -51,7 +50,7 @@ func (h *httpUserHandler) SignIn(c *gin.Context) {
 	result, err := h.service.LogIn(user.Username, user.Password)
 
 	if err != nil {
-		HandlerError(c, err)
+		handler.HandlerError(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
