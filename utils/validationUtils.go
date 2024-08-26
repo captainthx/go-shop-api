@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"unicode/utf8"
 )
@@ -17,7 +18,7 @@ func validate(value, fieldname string, regex *regexp.Regexp, min, max int) (bool
 		return true, errors.New(fieldname + " must contain only letters, numbers, or underscores")
 	}
 	if crossRange(value, min, max) {
-		return true, errors.New(fieldname + " must be between " + string(rune(min)) + " and " + string(rune(max)) + " characters")
+		return true, fmt.Errorf("%s must be between %d and %d characters", fieldname, min, max)
 	}
 	return false, nil
 }

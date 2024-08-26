@@ -33,11 +33,12 @@ func main() {
 	}
 	// Initialize the configuration
 	config.Init()
+
 	// create dsn for mysql gorm
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.DbUsername, config.DbPassword, config.DbHost, config.DbPort, config.DbName)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		logs.Error(err)
