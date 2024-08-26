@@ -9,15 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HttpAdminHandler struct {
+type httpAuthAdminHandler struct {
 	service adminPorts.AuthAdminService
 }
 
-func NewHttpAdminHandler(service adminPorts.AuthAdminService) *HttpAdminHandler {
-	return &HttpAdminHandler{service: service}
+func NewHttpAdminHandler(service adminPorts.AuthAdminService) *httpAuthAdminHandler {
+	return &httpAuthAdminHandler{service: service}
 }
 
-func (h *HttpAdminHandler) SignUp(c *gin.Context) {
+func (h *httpAuthAdminHandler) SignUp(c *gin.Context) {
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -37,7 +37,7 @@ func (h *HttpAdminHandler) SignUp(c *gin.Context) {
 	})
 }
 
-func (h *HttpAdminHandler) SignIn(c *gin.Context) {
+func (h *httpAuthAdminHandler) SignIn(c *gin.Context) {
 
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {

@@ -70,12 +70,11 @@ func initRoute(db *gorm.DB) {
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "Hello, World!",
+			"message": "pong!",
 		})
 	})
 
 	// file router
-
 	fileService := service.NewFileService()
 	fileHandler := handler.NewHttpFileHandler(fileService)
 
@@ -105,30 +104,32 @@ func initRoute(db *gorm.DB) {
 	authAdmin.POST("/sign-in", authAdminHandler.SignIn)
 
 	// product router
-	prodcutCus := router.Group("/v1/product")
+	prodCustumer := router.Group("/v1/product")
 
-	prodcutCus.GET("/", func(ctx *gin.Context) {})
+	prodCustumer.GET("/", func(ctx *gin.Context) {})
 
 	// Protected routes
 	router.Use(RequireAuth)
 
-	router.GET("/", func(c *gin.Context) {
-		user := c.MustGet("user").(*domain.User)
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello," + user.Role,
-			"user":    user,
-		})
-	})
-
 	// Admin routes
 	router.Use(adminOnly)
-	router.GET("/admin", func(c *gin.Context) {
-		user := c.MustGet("user").(*domain.User)
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello, Admin",
-			"user":    user,
-		})
-	})
+
+	// product admin router
+	prodAdminRepo := adminRepository.NewProductAdminRepositoryDB(db)
+	prodAdminService := adminService.NewProductAdminService(prodAdminRepo)
+	prodAdminHandler := adminHandler.NewHttpProductAdminHandler(prodAdminService)
+
+	prodAdmin := router.Group("/v1/admin/product")
+	prodAdmin.POST("/", prodAdminHandler.CreateProduct)
+
+	// category admin router
+	categoryRepo := adminRepository.NewCategoryAdminRepositoryDB(db)
+	categoryService := adminService.NewCategoryAdminService(categoryRepo)
+	categoryHandler := adminHandler.NewHttpCategoryAdminHandler(categoryService)
+
+	categoryRoute := router.Group("/v1/admin/category")
+	categoryRoute.POST("/", categoryHandler.CreateCateory)
+	categoryRoute.GET("/", categoryHandler.GetCategoryList)
 
 	err := router.Run(":" + config.ServerPort)
 	if err != nil {
@@ -156,10 +157,8 @@ func RequireAuth(c *gin.Context) {
 		})
 		return
 	}
-
 	// Extract the token from the Authorization header
 	token := authHeader[len("Bearer "):]
-
 	// Parse the token
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
@@ -170,10 +169,8 @@ func RequireAuth(c *gin.Context) {
 		})
 		return
 	}
-
 	// get token claims
 	claims := parsedToken.Claims.(jwt.MapClaims)
-
 	// Extract user claims
 	user.ID = uint(claims["auth"].(float64))
 	roleStr := claims["role"].(string)
@@ -181,14 +178,12 @@ func RequireAuth(c *gin.Context) {
 
 	// Store the user data in the Gin context
 	c.Set("user", user)
-
 	// Proceed to the next middleware or handler
 	c.Next()
 }
 
 func adminOnly(c *gin.Context) {
 	user := c.MustGet("user").(*domain.User)
-
 	if user.Role != domain.Role("admin") {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 			"message": "Forbidden",

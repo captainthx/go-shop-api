@@ -67,7 +67,6 @@ type Product struct {
 	Quantity     int            `json:"quantity" gorm:"not null"`
 	CategoryID   uint           `json:"category_id"`
 	ProductImage []ProductImage `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`
-	CartID       uint           `json:"cart_id"`
 }
 
 type ProductImage struct {
