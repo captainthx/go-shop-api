@@ -3,6 +3,7 @@ package adminService
 import (
 	"go-shop-api/adapters/errs"
 	"go-shop-api/core/domain"
+	"go-shop-api/core/model/response"
 	adminPorts "go-shop-api/core/ports/admin"
 	"go-shop-api/logs"
 	"go-shop-api/utils"
@@ -33,12 +34,19 @@ func (c *categoryAdminService) CreateCategory(category *domain.Category) error {
 }
 
 // GetCategory implements adminPorts.CategoryAdminService.
-func (c *categoryAdminService) GetCategory() ([]domain.Category, error) {
+func (c *categoryAdminService) GetCategory() ([]response.CategoryResponse, error) {
 	result, err := c.repo.FindAllCategory()
 
 	if err != nil {
 		logs.Error(err)
 		return nil, errs.NewUnexpectedError(err.Error())
 	}
-	return result, nil
+	responses := make([]response.CategoryResponse, 0, len(result))
+	for _, category := range result {
+		responses = append(responses, response.CategoryResponse{
+			ID:   category.ID,
+			Name: category.Name,
+		})
+	}
+	return responses, nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"go-shop-api/adapters/errs"
 	"go-shop-api/config"
+	"go-shop-api/core/model/response"
 	"go-shop-api/core/ports"
 	"mime/multipart"
 	"os"
@@ -19,7 +20,7 @@ func NewFileService() ports.FileService {
 }
 
 // UpLoadFile implements ports.FileService.
-func (f *fileService) UpLoadFile(file multipart.FileHeader, c *gin.Context) (*ports.UpLodaFileResponse, error) {
+func (f *fileService) UpLoadFile(file multipart.FileHeader, c *gin.Context) (*response.UpLodaFileResponse, error) {
 
 	if file.Size == 0 {
 		return nil, errs.NewBadRequestError("file is empty")
@@ -53,7 +54,7 @@ func (f *fileService) UpLoadFile(file multipart.FileHeader, c *gin.Context) (*po
 	// Construct the file URL
 	fileUrl := config.ImageBaseUrl + config.ImageBasePath + filename
 
-	uplodaResponse := &ports.UpLodaFileResponse{
+	uplodaResponse := &response.UpLodaFileResponse{
 		FileName: filename,
 		FileUrl:  fileUrl,
 		Size:     float32(file.Size),

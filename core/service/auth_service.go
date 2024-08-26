@@ -3,6 +3,7 @@ package service
 import (
 	"go-shop-api/adapters/errs"
 	"go-shop-api/core/domain"
+	"go-shop-api/core/model/response"
 	"go-shop-api/core/ports"
 	"go-shop-api/logs"
 	"go-shop-api/utils"
@@ -66,7 +67,7 @@ func (u *userService) CreateUser(user *domain.User) error {
 }
 
 // LogIn implements ports.AuthService.
-func (u *userService) LogIn(username string, password string) (*ports.LoginResponse, error) {
+func (u *userService) LogIn(username string, password string) (*response.LoginResponse, error) {
 	if invalid, err := utils.InvalidUsername(username); invalid || err != nil {
 		logs.Error(err)
 		return nil, errs.NewBadRequestError(err.Error())
@@ -95,7 +96,7 @@ func (u *userService) LogIn(username string, password string) (*ports.LoginRespo
 		return nil, errs.NewBadRequestError("Invalid password")
 	}
 
-	loginResponse := &ports.LoginResponse{
+	loginResponse := &response.LoginResponse{
 		AccessToken:  generateAcessToken(resutl),
 		RefreshToken: generateRefreshToken(resutl),
 	}

@@ -2,12 +2,12 @@ package adminPorts
 
 import (
 	"go-shop-api/core/domain"
-	"go-shop-api/core/ports"
+	"go-shop-api/core/model/response"
 )
 
 type AuthAdminService interface {
 	CreateAdmin(user *domain.User) error
-	LogIn(username string, password string) (*ports.LoginResponse, error)
+	LogIn(username string, password string) (*response.LoginResponse, error)
 }
 
 type AuthAdminRepository interface {
@@ -35,5 +35,5 @@ type CategoryAdminRepository interface {
 
 type CategoryAdminService interface {
 	CreateCategory(category *domain.Category) error
-	GetCategory() ([]domain.Category, error)
+	GetCategory() ([]response.CategoryResponse, error)
 }

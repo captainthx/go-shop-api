@@ -3,7 +3,7 @@ package adminService
 import (
 	"go-shop-api/adapters/errs"
 	"go-shop-api/core/domain"
-	"go-shop-api/core/ports"
+	response "go-shop-api/core/model/response"
 	adminPorts "go-shop-api/core/ports/admin"
 	"go-shop-api/logs"
 	"go-shop-api/utils"
@@ -67,7 +67,7 @@ func (a *authAdminService) CreateAdmin(user *domain.User) error {
 }
 
 // LogIn implements adminPorts.AuthAdminService.
-func (a *authAdminService) LogIn(username string, password string) (*ports.LoginResponse, error) {
+func (a *authAdminService) LogIn(username string, password string) (*response.LoginResponse, error) {
 	if invalid, err := utils.InvalidUsername(username); invalid || err != nil {
 		logs.Error(err)
 		return nil, errs.NewBadRequestError(err.Error())
@@ -96,7 +96,7 @@ func (a *authAdminService) LogIn(username string, password string) (*ports.Login
 		return nil, errs.NewBadRequestError("Invalid password")
 	}
 
-	loginResponse := &ports.LoginResponse{
+	loginResponse := &response.LoginResponse{
 		AccessToken:  generateAcessToken(resutl),
 		RefreshToken: generateRefreshToken(resutl),
 	}
