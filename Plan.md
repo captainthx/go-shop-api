@@ -22,7 +22,7 @@
       - sign-in ✅
       - sign-up ✅
     - product api
-      - get product
+      - get product ✅
       - get product by category
     - order api
       - create order
