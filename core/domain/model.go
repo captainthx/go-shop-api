@@ -13,18 +13,21 @@ type orderStatus string
 type Role string
 
 const (
-	Admin    Role = "admin"
-	Customer Role = "customer"
-)
-
-const (
 	Pending orderStatus = "pending"
 	Success orderStatus = "success"
 	Cancel  orderStatus = "cancel"
 )
 
+const (
+	Admin    Role = "admin"
+	Customer Role = "customer"
+)
+
 func (o *orderStatus) Scan(value interface{}) error {
-	*o = orderStatus(value.([]byte))
+	if value == nil {
+		return nil
+	}
+	*o = orderStatus(value.(string))
 	return nil
 }
 
@@ -33,7 +36,10 @@ func (o orderStatus) Value() (interface{}, error) {
 }
 
 func (r *Role) Scan(value interface{}) error {
-	*r = Role(value.([]byte))
+	if value == nil {
+		return nil
+	}
+	*r = Role(value.(string))
 	return nil
 }
 
@@ -63,7 +69,7 @@ type Category struct {
 type Product struct {
 	gorm.Model
 	Name         string         `json:"name" gorm:"type:varchar(100);not null"`
-	Price        float64        `json:"amount" gorm:"type:decimal(7,2); not null"`
+	Price        float64        `json:"price" gorm:"type:decimal(7,2); not null"`
 	Quantity     int            `json:"quantity" gorm:"not null"`
 	CategoryID   uint           `json:"category_id"`
 	ProductImage []ProductImage `gorm:"foreignKey:ProductID;constraint:OnDelete:CASCADE;"`

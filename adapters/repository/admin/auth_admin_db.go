@@ -25,13 +25,10 @@ func (a *authAdminRepositoryDB) CreateAdmin(user *domain.User) error {
 
 // FindByUserName implements adminPorts.AuthAdminRepository.
 func (a *authAdminRepositoryDB) FindByUserName(username string) (*domain.User, error) {
-	result := a.db.Where(&domain.User{Username: username}).First(&domain.User{})
+	var user domain.User
+	result := a.db.Where(&domain.User{Username: username, Role: "admin"}).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
-	}
-	var user domain.User
-	if err := result.Scan(&user).Error; err != nil {
-		return nil, err
 	}
 	return &user, nil
 }

@@ -24,13 +24,10 @@ func (r *authRepositoryDB) Create(user *domain.User) error {
 
 // FindByUserName implements repository.UserRepository.
 func (r *authRepositoryDB) FindByUserName(username string) (*domain.User, error) {
-	result := r.db.Where(domain.User{Username: username}).First(domain.User{})
+	var user domain.User
+	result := r.db.Where(&domain.User{Username: username, Role: "customer"}).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
-	}
-	var user domain.User
-	if err := result.Scan(user).Error; err != nil {
-		return nil, err
 	}
 	return &user, nil
 }

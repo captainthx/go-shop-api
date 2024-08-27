@@ -15,3 +15,18 @@ type UpLodaFileResponse struct {
 	FileUrl  string
 	Size     float32
 }
+
+type ProductResponse struct {
+	ID            uint                   `json:"id"`
+	Name          string                 `json:"name"`
+	Price         float64                `json:"price"`
+	Quantity      int                    `json:"quantity"`
+	CreatedAt     string                 `json:"created_at"`
+	ProductImages []ProductImageResponse `json:"product_images"`
+}
+
+type ProductImageResponse struct {
+	ID        uint   `json:"id"`
+	ProductID uint   `json:"product_id"`
+	Url       string `json:"url"`
+}

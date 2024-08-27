@@ -104,10 +104,14 @@ func initRoute(db *gorm.DB) {
 	authAdmin.POST("/sign-up", authAdminHandler.SignUp)
 	authAdmin.POST("/sign-in", authAdminHandler.SignIn)
 
+	prodRepo := repository.NewProductRepositoryDB(db)
+	prodService := service.NewProductService(prodRepo)
+	prodHandler := handler.NewHttpProductHandler(prodService)
+
 	// product router
 	prodCustumer := router.Group("/v1/product")
 
-	prodCustumer.GET("/", func(ctx *gin.Context) {})
+	prodCustumer.GET("/", prodHandler.GetProductList)
 
 	// Protected routes
 	router.Use(RequireAuth)

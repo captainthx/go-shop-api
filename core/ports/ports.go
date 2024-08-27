@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"go-shop-api/common"
 	"go-shop-api/core/domain"
 	"go-shop-api/core/model/response"
 	"mime/multipart"
@@ -26,4 +27,12 @@ type UserRepository interface {
 type FileService interface {
 	UpLoadFile(file multipart.FileHeader, c *gin.Context) (*response.UpLodaFileResponse, error)
 	ServeFile(fileName string) (string, error)
+}
+
+type ProductRepository interface {
+	FindAll(pagination *common.Pagination) (*common.Pagination, error)
+}
+
+type ProductService interface {
+	GetProductList(page, limit int, sort string) (*common.Pagination, error)
 }
