@@ -32,7 +32,7 @@
     - payment api
       - create transaction
     - cart api 
-      - get cart
-      - add cart 
+      - get cart ✅
+      - add cart ✅
       - update cart
       - delete cart
