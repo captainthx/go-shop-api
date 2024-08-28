@@ -121,9 +121,10 @@ func initRoute(db *gorm.DB) {
 	cartItemHandler := handler.NewHttpCartItemHandler(cartItemService)
 
 	// cart item router
-	cart := router.Group("/v1/cart")
+	cart := router.Group("/v1/cart-item")
 
 	cart.POST("/", cartItemHandler.AddCartItem)
+	cart.GET("/", cartItemHandler.GetCartItems)
 
 	// Admin routes
 	router.Use(adminOnly)

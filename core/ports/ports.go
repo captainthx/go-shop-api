@@ -39,14 +39,15 @@ type ProductService interface {
 }
 
 type CartItemRepository interface {
-	FindByUser(user *domain.User) ([]domain.CartItem, error)
+	FindCartItemByUserId(userId uint) ([]domain.CartItem, error)
 	FindByUserId(userId uint) (*domain.User, error)
 	FindByProductId(productId uint) (*domain.Product, error)
+	FindByProductIds(productIds []uint) ([]domain.Product, error)
 	CreateCartItem(cartItem *domain.CartItem) error
 	DeleteCartItem(cartItem *domain.CartItem) error
 }
 
 type CartItemService interface {
-	GetCartItemList(user *domain.User) ([]domain.CartItem, error)
+	GetCartItemList(user *domain.User) ([]response.CartItemResponse, error)
 	AddCartItem(request *request.NewCartItemRequest) error
 }

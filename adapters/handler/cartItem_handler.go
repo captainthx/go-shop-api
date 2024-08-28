@@ -37,3 +37,15 @@ func (h *httpCartItemHandler) AddCartItem(c *gin.Context) {
 		"message": "Cart item added successfully",
 	})
 }
+
+func (h *httpCartItemHandler) GetCartItems(c *gin.Context) {
+	user := c.MustGet("user").(*domain.User)
+
+	cartItems, err := h.service.GetCartItemList(user)
+	if err != nil {
+		HandlerError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cartItems)
+}

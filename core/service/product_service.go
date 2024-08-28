@@ -65,7 +65,6 @@ func mapProductImagesToResponse(images []domain.ProductImage) []response.Product
 	var responseImages []response.ProductImageResponse
 	for _, img := range images {
 		responseImages = append(responseImages, response.ProductImageResponse{
-			ID:        img.ID,
 			ProductID: img.ProductID,
 			Url:       img.URL,
 		})

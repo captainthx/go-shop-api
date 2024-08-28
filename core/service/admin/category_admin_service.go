@@ -42,6 +42,7 @@ func (c *categoryAdminService) GetCategory() ([]response.CategoryResponse, error
 		return nil, errs.NewUnexpectedError(err.Error())
 	}
 	responses := make([]response.CategoryResponse, 0, len(result))
+
 	for _, category := range result {
 		responses = append(responses, response.CategoryResponse{
 			ID:   category.ID,

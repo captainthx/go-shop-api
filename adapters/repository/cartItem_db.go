@@ -35,6 +35,17 @@ func (c *cartItemRepositoryDB) FindByProductId(productId uint) (*domain.Product,
 	return &product, nil
 }
 
+// FindByProductIds implements ports.CartItemRepository.
+func (c *cartItemRepositoryDB) FindByProductIds(productIds []uint) ([]domain.Product, error) {
+	var products []domain.Product
+
+	err := c.db.Preload("ProductImage").Where("id IN (?)", productIds).Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}
+
 // FindByUserId implements ports.CartItemRepository.
 func (c *cartItemRepositoryDB) FindByUserId(userId uint) (*domain.User, error) {
 	var user domain.User
@@ -51,12 +62,12 @@ func (c *cartItemRepositoryDB) DeleteCartItem(cartItem *domain.CartItem) error {
 }
 
 // FindByUser implements ports.CartItemRepository.
-func (c *cartItemRepositoryDB) FindByUser(user *domain.User) ([]domain.CartItem, error) {
+func (c *cartItemRepositoryDB) FindCartItemByUserId(userId uint) ([]domain.CartItem, error) {
 
 	var cartItems []domain.CartItem
-	err := c.db.Model(&domain.CartItem{}).Where("user_id = ?", user.ID).Find(&cartItems).Error
+	err := c.db.Where(&domain.CartItem{UserID: userId}).Find(&cartItems).Error
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+	return cartItems, nil
 }
