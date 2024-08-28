@@ -6,7 +6,6 @@ import (
 	"go-shop-api/core/domain"
 	"go-shop-api/core/model/response"
 	"go-shop-api/core/ports"
-	"time"
 )
 
 type productService struct {
@@ -57,7 +56,7 @@ func mapProductToResponse(product domain.Product) response.ProductResponse {
 		Name:          product.Name,
 		Price:         product.Price,
 		Quantity:      product.Quantity,
-		CreatedAt:     product.CreatedAt.Format(time.RFC3339),
+		CreatedAt:     product.CreatedAt.Format("2006-01-02 15:04:05"),
 		ProductImages: mapProductImagesToResponse(product.ProductImage),
 	}
 }

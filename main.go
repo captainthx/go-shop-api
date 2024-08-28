@@ -111,9 +111,19 @@ func initRoute(db *gorm.DB) {
 	prodCustumer := router.Group("/v1/product")
 
 	prodCustumer.GET("/", prodHandler.GetProductList)
+	prodCustumer.GET("/:id", func(ctx *gin.Context) {})
 
 	// Protected routes
 	router.Use(RequireAuth)
+
+	cartItemRepo := repository.NewCartItemRepositoryDB(db)
+	cartItemService := service.NewCartItemService(cartItemRepo)
+	cartItemHandler := handler.NewHttpCartItemHandler(cartItemService)
+
+	// cart item router
+	cart := router.Group("/v1/cart")
+
+	cart.POST("/", cartItemHandler.AddCartItem)
 
 	// Admin routes
 	router.Use(adminOnly)
