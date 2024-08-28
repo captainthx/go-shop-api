@@ -11,7 +11,7 @@
       - create product ✅
       - update product 
       - delete product
-    - categories api
+    - categories api 
       - create category ✅
       - get category list ✅
   

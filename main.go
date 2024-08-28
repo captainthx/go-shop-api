@@ -50,7 +50,6 @@ func main() {
 		&domain.Category{},
 		&domain.Product{},
 		&domain.ProductImage{},
-		&domain.Cart{},
 		&domain.CartItem{},
 		&domain.Order{},
 		&domain.OrderItem{},

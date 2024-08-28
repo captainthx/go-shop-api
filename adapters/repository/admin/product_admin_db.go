@@ -31,10 +31,11 @@ func (p *productAdminRepositoryDB) DeleteProduct(product *domain.Product) error 
 // FindCategoryByID implements adminPorts.ProductAdminRepository.
 func (p *productAdminRepositoryDB) FindCategoryByID(id uint) (*domain.Category, error) {
 	var category domain.Category
-	err := p.db.Where(&domain.Category{Model: gorm.Model{ID: id}}).First(&category)
+	err := p.db.Model(&domain.Category{}).Where("id = ?", id).First(&category)
 	if err.Error != nil {
 		return nil, err.Error
 	}
+
 	return &category, nil
 }
 

@@ -6,6 +6,8 @@ import (
 	adminPorts "go-shop-api/core/ports/admin"
 	"go-shop-api/logs"
 	"go-shop-api/utils"
+
+	"gorm.io/gorm"
 )
 
 type productAdminService struct {
@@ -47,6 +49,10 @@ func (p *productAdminService) CreateProduct(product *domain.Product) error {
 	category, err := p.repo.FindCategoryByID(product.CategoryID)
 
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logs.Error(err)
+			return errs.NewNotFoundError("CategoryID not found")
+		}
 		logs.Error(err)
 		return errs.NewUnexpectedError(err.Error())
 	}

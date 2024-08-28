@@ -70,5 +70,5 @@ func InvalidProductPrice(price float64) (bool, error) {
 }
 
 func InvalidCategoryName(categoryName string) (bool, error) {
-	return validate(categoryName, "Category Name", nil, 10, 100)
+	return validate(categoryName, "Category Name", nil, 5, 30)
 }

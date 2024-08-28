@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,11 +24,20 @@ const (
 	Customer Role = "customer"
 )
 
-func (o *orderStatus) Scan(value interface{}) error {
+func (r *orderStatus) Scan(value interface{}) error {
 	if value == nil {
+		*r = ""
 		return nil
 	}
-	*o = orderStatus(value.(string))
+
+	switch v := value.(type) {
+	case []byte:
+		*r = orderStatus(string(v))
+	case string:
+		*r = orderStatus(v)
+	default:
+		return fmt.Errorf("unsupported type for orderStatus: %T", value)
+	}
 	return nil
 }
 
@@ -37,9 +47,18 @@ func (o orderStatus) Value() (interface{}, error) {
 
 func (r *Role) Scan(value interface{}) error {
 	if value == nil {
+		*r = ""
 		return nil
 	}
-	*r = Role(value.(string))
+
+	switch v := value.(type) {
+	case []byte:
+		*r = Role(string(v))
+	case string:
+		*r = Role(v)
+	default:
+		return fmt.Errorf("unsupported type for Role: %T", value)
+	}
 	return nil
 }
 
@@ -50,14 +69,14 @@ func (r Role) Value() (interface{}, error) {
 // all the domain models are defined here
 type User struct {
 	gorm.Model
-	Name     string  `json:"name" gorm:"type:varchar(30);not null"`
-	Username string  `json:"username" gorm:"type:varchar(20);not null;unique"`
-	Password string  `json:"password" gorm:"type:varchar(255);not null"`
-	Avatar   string  `json:"avatar"`
-	Email    string  `json:"email" gorm:"type:varchar(50);not null;unique"`
-	Role     Role    `json:"role" gorm:"type:ENUM('admin', 'customer');default:'customer'"`
-	Orders   []Order `gorm:"foreignKey:UserID"`
-	Cart     Cart    `gorm:"foreignKey:UserID"`
+	Name     string     `json:"name" gorm:"type:varchar(30);not null"`
+	Username string     `json:"username" gorm:"type:varchar(20);not null;unique"`
+	Password string     `json:"password" gorm:"type:varchar(255);not null"`
+	Avatar   string     `json:"avatar"`
+	Email    string     `json:"email" gorm:"type:varchar(50);not null;unique"`
+	Role     Role       `json:"role" gorm:"type:ENUM('admin', 'customer');default:'customer'"`
+	Orders   []Order    `gorm:"foreignKey:UserID"`
+	CartItem []CartItem `gorm:"foreignKey:UserID"`
 }
 
 type Category struct {
@@ -81,11 +100,6 @@ type ProductImage struct {
 	URL       string `json:"url" gorm:"type:varchar(255);not null"`
 }
 
-type Cart struct {
-	gorm.Model
-	UserID    uint       `json:"user_id"`
-	CartItems []CartItem `gorm:"foreignKey:CartID"`
-}
 type CartItem struct {
 	gorm.Model
 	UserID    uint `json:"user_id"`
@@ -102,16 +116,15 @@ type Order struct {
 	UserID      uint        `json:"user_id"`
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
-	OrderItems  []OrderItem `gorm:"foreignKey:OrderID"`
 	Transaction Transaction `gorm:"foreignKey:OrderID"`
 }
 
 type OrderItem struct {
 	gorm.Model
-	OrderID   uint    `json:"order_id"`
-	ProductID uint    `json:"product_id"`
-	Quantity  int     `json:"quantity"`
-	Price     float64 `json:"price" gorm:"type:decimal(7,2);"`
+	OrderID   uint `json:"order_id"`
+	ProductID uint `json:"product_id"`
+	Quantity  int  `json:"quantity"`
+	Price     int  `json:"price"`
 }
 
 type Transaction struct {
