@@ -125,6 +125,8 @@ func initRoute(db *gorm.DB) {
 
 	cart.POST("/", cartItemHandler.AddCartItem)
 	cart.GET("/", cartItemHandler.GetCartItems)
+	cart.PUT("/update", cartItemHandler.UpdateCartItem)
+	cart.DELETE("/:id", cartItemHandler.DeleteCartItem)
 
 	// Admin routes
 	router.Use(adminOnly)
@@ -150,7 +152,6 @@ func initRoute(db *gorm.DB) {
 	if err != nil {
 		logs.Error(err)
 	}
-
 }
 
 func initTimezone() {

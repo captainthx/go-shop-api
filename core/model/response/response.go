@@ -34,4 +34,5 @@ type CartItemResponse struct {
 	ID        uint            `json:"id"`
 	Product   ProductResponse `json:"product"`
 	CreatedAt string          `json:"createdAt"`
+	UpdatedAt string          `json:"updatedAt"`
 }

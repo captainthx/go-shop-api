@@ -44,10 +44,15 @@ type CartItemRepository interface {
 	FindByProductId(productId uint) (*domain.Product, error)
 	FindByProductIds(productIds []uint) ([]domain.Product, error)
 	CreateCartItem(cartItem *domain.CartItem) error
-	DeleteCartItem(cartItem *domain.CartItem) error
+	DeleteCartItem(cartItemId uint) error
+	UpdateCartItem(cartItem *domain.CartItem) error
+	UpdateProductQuantity(product *domain.Product) error
+	FindByCartId(cartId uint) (*domain.CartItem, error)
 }
 
 type CartItemService interface {
 	GetCartItemList(user *domain.User) ([]response.CartItemResponse, error)
 	AddCartItem(request *request.NewCartItemRequest) error
+	UpdateCartItem(request *request.UpdQauntityCartItem) (*response.CartItemResponse, error)
+	DeleteCartItem(cartId uint) error
 }

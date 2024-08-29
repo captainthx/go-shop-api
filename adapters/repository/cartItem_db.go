@@ -56,9 +56,64 @@ func (c *cartItemRepositoryDB) FindByUserId(userId uint) (*domain.User, error) {
 	return &user, nil
 }
 
-// DeleteCartItem implements ports.CartItemRepository.
-func (c *cartItemRepositoryDB) DeleteCartItem(cartItem *domain.CartItem) error {
+// // IncressdCartItemQuantity implements ports.CartItemRepository.
+// func (c *cartItemRepositoryDB) IncressdCartItemQuantity(cartItem *domain.CartItem) (*domain.CartItem, error) {
+// 	c.db.Transaction(func(tx *gorm.DB) error {
+// 		if err := tx.Model(&domain.CartItem{}).Where("id = ?", cartItem.ID).UpdateColumn("quantity", gorm.Expr("quantity + ?", cartItem.Quantity)).Error; err != nil {
+// 			tx.Rollback()
+// 			return err
+// 		}
+// 		if err := tx.Model(&domain.Product{}).Where("id = ?", cartItem.ProductID).UpdateColumn("quantity", gorm.Expr("quantity - ?", cartItem.Quantity)).Error; err != nil {
+// 			tx.Rollback()
+// 			return err
+// 		}
+// 		return nil
+// 	})
+// 	return cartItem, nil
+// }
+
+// // DecressdCartItemQuantity implements ports.CartItemRepository.
+// func (c *cartItemRepositoryDB) DecressdCartItemQuantity(cartItem *domain.CartItem) (*domain.CartItem, error) {
+// 	c.db.Transaction(func(tx *gorm.DB) error {
+// 		if err := tx.Model(&domain.CartItem{}).Where("id = ?", cartItem.ID).UpdateColumn("quantity", gorm.Expr("quantity - ?", cartItem.Quantity)).Error; err != nil {
+// 			tx.Rollback()
+// 			return err
+// 		}
+// 		if err := tx.Model(&domain.Product{}).Where("id = ?", cartItem.ProductID).UpdateColumn("quantity", gorm.Expr("quantity + ?", cartItem.Quantity)).Error; err != nil {
+// 			tx.Rollback()
+// 			return err
+// 		}
+// 		return nil
+// 	})
+// 	return cartItem, nil
+// }
+
+// UpdateCartItem implements ports.CartItemRepository.
+func (c *cartItemRepositoryDB) UpdateCartItem(cartItem *domain.CartItem) error {
+	err := c.db.Model(&domain.CartItem{}).Where("id = ?", cartItem.ID).Updates(&cartItem).Error
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+// UpdateProductQuantity implements ports.CartItemRepository.
+func (c *cartItemRepositoryDB) UpdateProductQuantity(product *domain.Product) error {
+	err := c.db.Model(&domain.Product{}).Where("id = ?", product.ID).Updates(&product).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// FindByCartId implements ports.CartItemRepository.
+func (c *cartItemRepositoryDB) FindByCartId(cartId uint) (*domain.CartItem, error) {
+	var cartItem domain.CartItem
+	err := c.db.Model(&domain.CartItem{}).Where("id = ?", cartId).First(&cartItem).Error
+	if err != nil {
+		return nil, err
+	}
+	return &cartItem, nil
 }
 
 // FindByUser implements ports.CartItemRepository.
@@ -70,4 +125,13 @@ func (c *cartItemRepositoryDB) FindCartItemByUserId(userId uint) ([]domain.CartI
 		return nil, err
 	}
 	return cartItems, nil
+}
+
+// DeleteCartItem implements ports.CartItemRepository.
+func (c *cartItemRepositoryDB) DeleteCartItem(cartItemId uint) error {
+	err := c.db.Delete(&domain.CartItem{}, cartItemId).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
