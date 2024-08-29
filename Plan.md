@@ -34,5 +34,5 @@
     - cart api 
       - get cart ✅
       - add cart ✅
-      - update cart
-      - delete cart
+      - update cart ✅
+      - delete cart ✅
