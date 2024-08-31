@@ -1,5 +1,11 @@
 package response
 
+import (
+	"go-shop-api/core/domain"
+
+	"github.com/google/uuid"
+)
+
 type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -35,4 +41,25 @@ type CartItemResponse struct {
 	Product   ProductResponse `json:"product"`
 	CreatedAt string          `json:"createdAt"`
 	UpdatedAt string          `json:"updatedAt"`
+}
+
+type OrderResponse struct {
+	ID          uint               `json:"id"`
+	OrderNumber uuid.UUID          `json:"orderNumber"`
+	Status      domain.OrderStatus `json:"status"`
+	TotalPay    float64            `json:"totalPay"`
+}
+
+type OrderHistoryResponse struct {
+	ID          uint                `json:"id"`
+	OrderNumber uuid.UUID           `json:"orderNumber"`
+	Status      domain.OrderStatus  `json:"status"`
+	TotalPay    float64             `json:"totalPay"`
+	OrderItems  []OrderItemResponse `json:"orderItems"`
+}
+
+type OrderItemResponse struct {
+	ProductName string  `json:"productName"`
+	Quantity    int     `json:"quantity"`
+	Price       float64 `json:"price"`
 }

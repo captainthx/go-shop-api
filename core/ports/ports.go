@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthService interface {
@@ -55,4 +56,26 @@ type CartItemService interface {
 	AddCartItem(request *request.NewCartItemRequest) error
 	UpdateCartItem(request *request.UpdQauntityCartItem) (*response.CartItemResponse, error)
 	DeleteCartItem(cartId uint) error
+}
+
+type OrderRepository interface {
+	CreateOrder(*domain.Order) error
+	CreateOrderItems(orderItem []domain.OrderItem) error
+	FindOrderByUserId(userId uint) ([]domain.Order, error)
+	FindOrderByID(orderId uint) (*domain.Order, error)
+	FindOrderByStatus(orderStatus domain.OrderStatus) ([]domain.Order, error)
+	FindCartItemByUserId(userId uint) ([]domain.CartItem, error)
+	FindProductByIds(productIds []uint) ([]domain.Product, error)
+	FindProudctById(productId uint) (*domain.Product, error)
+	FindOrderItemByOrderNumber(orderNumber uuid.UUID) ([]domain.OrderItem, error)
+	DeleteCartItemByUserId(userId uint) error
+	UpdateOrder(order *domain.Order) error
+	UpdateProductQuantityById(product *domain.Product) error
+}
+
+type OrderService interface {
+	CreateOrder(request *request.NewOrderReuqest) (*response.OrderResponse, error)
+	GetOrderByStatus(orderStatus string) ([]domain.Order, error)
+	GetOrderHistory(user *domain.User) ([]response.OrderHistoryResponse, error)
+	CancelOrder(orderId uint) error
 }

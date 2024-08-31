@@ -27,7 +27,7 @@ func main() {
 
 	initTimezone()
 
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		logs.Error(err)
 	}
@@ -128,6 +128,17 @@ func initRoute(db *gorm.DB) {
 	cart.PUT("/update", cartItemHandler.UpdateCartItem)
 	cart.DELETE("/:id", cartItemHandler.DeleteCartItem)
 
+	orderRepo := repository.NewOrderRepositoryDB(db)
+	orderService := service.NewOrderService(orderRepo)
+	orderHandler := handler.NewHttpOrderHandler(orderService)
+
+	// order router
+	order := router.Group("/v1/order")
+
+	order.GET("/", orderHandler.GetOrderHistoryList)
+	order.POST("/", orderHandler.CreateOrder)
+	order.POST("/cancel/:id", orderHandler.CancelOrder)
+
 	// Admin routes
 	router.Use(adminOnly)
 
@@ -200,7 +211,7 @@ func RequireAuth(c *gin.Context) {
 
 func adminOnly(c *gin.Context) {
 	user := c.MustGet("user").(*domain.User)
-	if user.Role != domain.Role("admin") {
+	if user.Role != domain.Admin {
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 			"message": "Forbidden",
 		})

@@ -12,3 +12,8 @@ type UpdQauntityCartItem struct {
 	CartItemId uint `json:"cartItemId"`
 	Quantity   int  `json:"quantity"`
 }
+
+type NewOrderReuqest struct {
+	UserID   uint    `json:"userId"`
+	TotalPay float64 `json:"totalPay"`
+}
