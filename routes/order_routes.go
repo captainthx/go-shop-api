@@ -9,6 +9,23 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Order
+// @Description Order
+// @Shemes http
+// @Tags Order
+// @Param request body request.NewOrderReuqest true "Create Order Request"
+// @Param id path string true "Order ID"
+// @Param status query string false "Order Status"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Router /v1/order [post]
+// @Router /v1/order [get]
+// @Router /v1/order/search [get]
+// @Router /v1/order/cancel/{id} [post]
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func RegisterOrderRoutes(router *gin.Engine, db *gorm.DB) {
 	orderRepo := repository.NewOrderRepositoryDB(db)
 	orderService := service.NewOrderService(orderRepo)

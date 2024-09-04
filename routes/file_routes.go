@@ -8,6 +8,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary File
+// @Description File Upload
+// @Shemes http
+// @Tags File
+// @Param file formData file true "File to upload"
+// @Success 200 {object} string
+// @Router /v1/file/upload [post]
+// @Router /v1/file/serve/{fileName} [get]
 func RegisterFileRoutes(router *gin.Engine, db *gorm.DB) {
 
 	fileService := service.NewFileService()

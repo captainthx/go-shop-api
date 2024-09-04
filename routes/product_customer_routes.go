@@ -9,6 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Product Customer
+// @Description Product Customer
+// @Tags Customer
+// @Accept json
+// @Produce json
+// @Success 200 {object} common.Pagination
+// @Router /v1/product [get]
+
 func RegisterProductCusRoutes(router *gin.Engine, db *gorm.DB) {
 	prodRepo := repository.NewProductRepositoryDB(db)
 	prodService := service.NewProductService(prodRepo)

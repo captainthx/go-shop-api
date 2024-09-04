@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-shop-api/config"
 	"go-shop-api/core/domain"
+	"go-shop-api/docs"
 	"go-shop-api/logs"
 	"go-shop-api/midleware"
 	"go-shop-api/routes"
@@ -11,11 +12,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
+// @title Go Shop API
+// @version 1.0
+// @description This is a simple shop API
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	initTimezone()
 
@@ -72,7 +81,8 @@ func initRoute(db *gorm.DB) *gin.Engine {
 
 	router := gin.Default()
 	router.MaxMultipartMemory = 2 << 20 // 2 MB
-
+	docs.SwaggerInfo.BasePath = "/"
+	router.GET("/doc/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong!",

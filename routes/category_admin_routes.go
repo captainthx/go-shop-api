@@ -9,6 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Category Admin
+// @Description Category Admin
+// @Tags  Category Admin
+// @Param request body domain.Category true "Create Category Request"
+// @Shemes http
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Router /v1/admin/category [post]
+// @Router /v1/admin/category [get]
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func RegisterCategoryAdminRoutes(router *gin.Engine, db *gorm.DB) {
 	categoryRepo := adminRepository.NewCategoryAdminRepositoryDB(db)
 	categoryService := adminService.NewCategoryAdminService(categoryRepo)

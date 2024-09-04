@@ -9,6 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Auth
+// @Description Auth
+// @Tags Auth
+// @Param request body domain.User true "Create User Request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.LoginResponse
+// @Router /v1/auth/sign-up [post]
+// @Router /v1/auth/sign-in [post]
 func RegisterAuthRoutes(router *gin.Engine, db *gorm.DB) {
 	authRepo := repository.NewAuthRepositoryDB(db)
 	authService := service.NewAuthService(authRepo)

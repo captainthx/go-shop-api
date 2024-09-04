@@ -9,6 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Product Admin
+// @Description Product Admin
+// @Shemes http
+// @Tags Product Admin
+// @Param request body domain.Product true "Create Product Request"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 201 {object} string
+// @Router /v1/admin/product [post]
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func RegisterProductAdminRoutes(router *gin.Engine, db *gorm.DB) {
 	prodAdminRepo := adminRepository.NewProductAdminRepositoryDB(db)
 	prodAdminService := adminService.NewProductAdminService(prodAdminRepo)

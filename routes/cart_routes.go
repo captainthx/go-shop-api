@@ -9,6 +9,24 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Cart
+// @Description Cart
+// @Shemes http
+// @Tags Cart
+// @Param request body request.NewCartItemRequest true "Create Cart Item Request"
+// @Param request body request.UpdQauntityCartItem true "Update Cart Item Request"
+// @Param id path string true "Cart Item ID"
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.CartItemResponse
+// @Router /v1/cart [post]
+// @Router /v1/cart [get]
+// @Router /v1/cart/update [put]
+// @Router /v1/cart/{id} [delete]
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func RegisterCartRoutes(router *gin.Engine, db *gorm.DB) {
 	cartItemRepo := repository.NewCartItemRepositoryDB(db)
 	cartItemService := service.NewCartItemService(cartItemRepo)

@@ -9,6 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
+// @Summary Auth Admin
+// @Description Auth Admin
+// @Tags Admin
+// @Param request body domain.User true "Create Admin Request"
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.LoginResponse
+// @Router /v1/admin/auth/sign-up [post]
+// @Router /v1/admin/auth/sign-in [post]
 func RegisterAuthAdminRoutes(router *gin.Engine, db *gorm.DB) {
 	authAdminRepo := adminRepository.NewAuthAdminRepositoryDB(db)
 	authAdminService := adminService.NewAuthAdminService(authAdminRepo)

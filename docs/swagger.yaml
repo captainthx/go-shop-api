@@ -1,0 +1,602 @@
+definitions:
+  domain.Category:
+    type: object
+  domain.Product:
+    type: object
+  domain.User:
+    type: object
+  request.NewCartItemRequest:
+    properties:
+      productId:
+        type: integer
+      quantity:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - productId
+    - quantity
+    type: object
+  request.NewOrderReuqest:
+    properties:
+      totalPay:
+        type: number
+      userId:
+        type: integer
+    type: object
+  request.NewTransactionRequest:
+    properties:
+      amount:
+        type: number
+      orderId:
+        type: integer
+      orderNumber:
+        type: string
+    type: object
+  request.UpdQauntityCartItem:
+    properties:
+      cartItemId:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  request.UpdateTransactionRequest:
+    properties:
+      orderNumber:
+        type: string
+      payTime:
+        type: string
+    type: object
+  request.UpdateUserAvatarRequest:
+    properties:
+      image_url:
+        type: string
+      userId:
+        type: integer
+    type: object
+  response.CartItemResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      product:
+        $ref: '#/definitions/response.ProductResponse'
+      updatedAt:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  response.ProductImageResponse:
+    properties:
+      productId:
+        type: integer
+      url:
+        type: string
+    type: object
+  response.ProductResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      productImage:
+        items:
+          $ref: '#/definitions/response.ProductImageResponse'
+        type: array
+      quantity:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is a simple shop API
+  title: Go Shop API
+  version: "1.0"
+paths:
+  /v1/admin/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Auth Admin
+      parameters:
+      - description: Create Admin Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+      summary: Auth Admin
+      tags:
+      - Admin
+  /v1/admin/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Auth Admin
+      parameters:
+      - description: Create Admin Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+      summary: Auth Admin
+      tags:
+      - Admin
+  /v1/admin/category:
+    get:
+      consumes:
+      - application/json
+      description: Category Admin
+      parameters:
+      - description: Create Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Category'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Category Admin
+      tags:
+      - Category Admin
+    post:
+      consumes:
+      - application/json
+      description: Category Admin
+      parameters:
+      - description: Create Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Category'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Category Admin
+      tags:
+      - Category Admin
+  /v1/admin/product:
+    post:
+      consumes:
+      - application/json
+      description: Product Admin
+      parameters:
+      - description: Create Product Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Product Admin
+      tags:
+      - Product Admin
+  /v1/auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Auth
+      parameters:
+      - description: Create User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+      summary: Auth
+      tags:
+      - Auth
+  /v1/auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Auth
+      parameters:
+      - description: Create User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginResponse'
+      summary: Auth
+      tags:
+      - Auth
+  /v1/cart:
+    get:
+      consumes:
+      - application/json
+      description: Cart
+      parameters:
+      - description: Create Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewCartItemRequest'
+      - description: Update Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdQauntityCartItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartItemResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cart
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Cart
+      parameters:
+      - description: Create Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewCartItemRequest'
+      - description: Update Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdQauntityCartItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartItemResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cart
+      tags:
+      - Cart
+  /v1/cart/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Cart
+      parameters:
+      - description: Create Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewCartItemRequest'
+      - description: Update Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdQauntityCartItem'
+      - description: Cart Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartItemResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cart
+      tags:
+      - Cart
+  /v1/cart/update:
+    put:
+      consumes:
+      - application/json
+      description: Cart
+      parameters:
+      - description: Create Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewCartItemRequest'
+      - description: Update Cart Item Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdQauntityCartItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartItemResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Cart
+      tags:
+      - Cart
+  /v1/file/serve/{fileName}:
+    get:
+      description: File Upload
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: File
+      tags:
+      - File
+  /v1/file/upload:
+    post:
+      description: File Upload
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: File
+      tags:
+      - File
+  /v1/order:
+    get:
+      consumes:
+      - application/json
+      description: Order
+      parameters:
+      - description: Create Order Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewOrderReuqest'
+      - description: Order Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Order
+      tags:
+      - Order
+    post:
+      consumes:
+      - application/json
+      description: Order
+      parameters:
+      - description: Create Order Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewOrderReuqest'
+      - description: Order Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Order
+      tags:
+      - Order
+  /v1/order/cancel/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Order
+      parameters:
+      - description: Create Order Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewOrderReuqest'
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Order Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Order
+      tags:
+      - Order
+  /v1/order/search:
+    get:
+      consumes:
+      - application/json
+      description: Order
+      parameters:
+      - description: Create Order Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewOrderReuqest'
+      - description: Order Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Order
+      tags:
+      - Order
+  /v1/transaction:
+    post:
+      consumes:
+      - application/json
+      description: Transaction
+      parameters:
+      - description: Create Transaction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewTransactionRequest'
+      - description: Update Transaction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Transaction
+      tags:
+      - Transaction
+    put:
+      consumes:
+      - application/json
+      description: Transaction
+      parameters:
+      - description: Create Transaction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.NewTransactionRequest'
+      - description: Update Transaction Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Transaction
+      tags:
+      - Transaction
+  /v1/user/avatar:
+    put:
+      consumes:
+      - application/json
+      description: User
+      parameters:
+      - description: Create User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUserAvatarRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: User
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
