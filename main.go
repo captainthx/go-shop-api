@@ -2,21 +2,14 @@ package main
 
 import (
 	"fmt"
-	"go-shop-api/adapters/handler"
-	adminHandler "go-shop-api/adapters/handler/admin"
-	"go-shop-api/adapters/repository"
-	adminRepository "go-shop-api/adapters/repository/admin"
 	"go-shop-api/config"
 	"go-shop-api/core/domain"
-	"go-shop-api/core/service"
-	adminService "go-shop-api/core/service/admin"
 	"go-shop-api/logs"
-	"net/http"
-	"os"
+	"go-shop-api/midleware"
+	"go-shop-api/routes"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -24,7 +17,6 @@ import (
 )
 
 func main() {
-
 	initTimezone()
 
 	err := godotenv.Load(".env")
@@ -58,11 +50,24 @@ func main() {
 		logs.Error(err)
 		return
 	}
-	initRoute(db)
+	router := initRoute(db)
+
+	err = router.Run(":" + config.ServerPort)
+	if err != nil {
+		logs.Error(err)
+	}
 
 }
 
-func initRoute(db *gorm.DB) {
+func initTimezone() {
+	ict, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		panic(err)
+	}
+	time.Local = ict
+}
+
+func initRoute(db *gorm.DB) *gin.Engine {
 	gin.SetMode(config.Mode)
 
 	router := gin.Default()
@@ -74,168 +79,22 @@ func initRoute(db *gorm.DB) {
 		})
 	})
 
-	// file router
-	fileService := service.NewFileService()
-	fileHandler := handler.NewHttpFileHandler(fileService)
-
-	file := router.Group("/v1/file")
-
-	file.POST("/upload", fileHandler.UploadFile)
-	file.GET("/serve/:fileName", fileHandler.ServeFile)
-
-	// auth user router
-	authRepo := repository.NewauthRepositoryDB(db)
-	authService := service.NewAuthService(authRepo)
-	authHandler := handler.NewHttpAuthHandler(authService)
-
-	auth := router.Group("/v1/auth")
-
-	auth.POST("/sign-up", authHandler.SignUp)
-	auth.POST("/sign-in", authHandler.SignIn)
-
-	// auth admin router
-	authAdminRepo := adminRepository.NewAuthAdminRepositoryDB(db)
-	authAdminService := adminService.NewAuthAdminService(authAdminRepo)
-	authAdminHandler := adminHandler.NewHttpAdminHandler(authAdminService)
-
-	authAdmin := router.Group("/v1/admin/auth")
-
-	authAdmin.POST("/sign-up", authAdminHandler.SignUp)
-	authAdmin.POST("/sign-in", authAdminHandler.SignIn)
-
-	prodRepo := repository.NewProductRepositoryDB(db)
-	prodService := service.NewProductService(prodRepo)
-	prodHandler := handler.NewHttpProductHandler(prodService)
-
-	// product router
-	prodCustumer := router.Group("/v1/product")
-
-	prodCustumer.GET("/", prodHandler.GetProductList)
-	prodCustumer.GET("/:id", func(ctx *gin.Context) {})
+	// Public routes
+	routes.RegisterFileRoutes(router, db)
+	routes.RegisterAuthRoutes(router, db)
+	routes.RegisterAuthAdminRoutes(router, db)
+	routes.RegisterProductCusRoutes(router, db)
 
 	// Protected routes
-	router.Use(RequireAuth)
-
-	userRepo := repository.NewUserRepositoryDB(db)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewHttpUserHandler(userService)
-
-	// user router
-
-	user := router.Group("/v1/user")
-
-	user.PUT("/avatar", userHandler.UpdateUserAvatar)
-
-	cartItemRepo := repository.NewCartItemRepositoryDB(db)
-	cartItemService := service.NewCartItemService(cartItemRepo)
-	cartItemHandler := handler.NewHttpCartItemHandler(cartItemService)
-
-	// cart item router
-	cart := router.Group("/v1/cart-item")
-
-	cart.POST("/", cartItemHandler.AddCartItem)
-	cart.GET("/", cartItemHandler.GetCartItems)
-	cart.PUT("/update", cartItemHandler.UpdateCartItem)
-	cart.DELETE("/:id", cartItemHandler.DeleteCartItem)
-
-	orderRepo := repository.NewOrderRepositoryDB(db)
-	orderService := service.NewOrderService(orderRepo)
-	orderHandler := handler.NewHttpOrderHandler(orderService)
-
-	// order router
-	order := router.Group("/v1/order")
-
-	order.GET("/", orderHandler.GetOrderHistoryList)
-	order.GET("/search", orderHandler.GetOrderListByStatus)
-	order.POST("/", orderHandler.CreateOrder)
-	order.POST("/cancel/:id", orderHandler.CancelOrder)
-
-	transactionRepo := repository.NewTransactionRepositoryDB(db)
-	transactionService := service.NewTransactionService(transactionRepo)
-	transactionHandler := handler.NewHttpTransactionHandler(transactionService)
-
-	// transaction router
-	transaction := router.Group("/v1/transaction")
-	transaction.POST("/", transactionHandler.CreateTransaction)
-	transaction.PUT("/", transactionHandler.UpdateTransaction)
+	router.Use(midleware.RequireAuth)
+	routes.RegisterCartRoutes(router, db)
+	routes.RegisterOrderRoutes(router, db)
+	routes.RegisterTransactionRoutes(router, db)
 
 	// Admin routes
-	router.Use(adminOnly)
+	router.Use(midleware.AdminOnly)
+	routes.RegisterProductAdminRoutes(router, db)
+	routes.RegisterCategoryAdminRoutes(router, db)
 
-	// product admin router
-	prodAdminRepo := adminRepository.NewProductAdminRepositoryDB(db)
-	prodAdminService := adminService.NewProductAdminService(prodAdminRepo)
-	prodAdminHandler := adminHandler.NewHttpProductAdminHandler(prodAdminService)
-
-	prodAdmin := router.Group("/v1/admin/product")
-	prodAdmin.POST("/", prodAdminHandler.CreateProduct)
-
-	// category admin router
-	categoryRepo := adminRepository.NewCategoryAdminRepositoryDB(db)
-	categoryService := adminService.NewCategoryAdminService(categoryRepo)
-	categoryHandler := adminHandler.NewHttpCategoryAdminHandler(categoryService)
-
-	categoryRoute := router.Group("/v1/admin/category")
-	categoryRoute.POST("/", categoryHandler.CreateCateory)
-	categoryRoute.GET("/", categoryHandler.GetCategoryList)
-
-	err := router.Run(":" + config.ServerPort)
-	if err != nil {
-		logs.Error(err)
-	}
-}
-
-func initTimezone() {
-	ict, err := time.LoadLocation("Asia/Bangkok")
-	if err != nil {
-		panic(err)
-	}
-	time.Local = ict
-}
-
-func RequireAuth(c *gin.Context) {
-	user := &domain.User{}
-	authHeader := c.GetHeader("Authorization")
-
-	// Check if the Authorization header is missing or empty
-	if authHeader == "" || len(authHeader) <= len("Bearer ") {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "Unauthorized",
-		})
-		return
-	}
-	// Extract the token from the Authorization header
-	token := authHeader[len("Bearer "):]
-	// Parse the token
-	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-	// get token claims
-	claims := parsedToken.Claims.(jwt.MapClaims)
-	// Extract user claims
-	user.ID = uint(claims["auth"].(float64))
-	roleStr := claims["role"].(string)
-	user.Role = domain.Role(roleStr)
-
-	// Store the user data in the Gin context
-	c.Set("user", user)
-	// Proceed to the next middleware or handler
-	c.Next()
-}
-
-func adminOnly(c *gin.Context) {
-	user := c.MustGet("user").(*domain.User)
-	if user.Role != domain.Admin {
-		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-			"message": "Forbidden",
-		})
-		return
-	}
-	c.Next()
+	return router
 }
