@@ -25,12 +25,13 @@
       - get product ✅
       - get product by category
     - order api
-      - create order
-      - cancel order
-      - order history
-      - get order by status
+      - create order ✅
+      - cancel order ✅
+      - order history ✅
+      - get order by status ✅
     - payment api
-      - create transaction
+      - create transaction ✅
+      - update transaction ✅
     - cart api 
       - get cart ✅
       - add cart ✅
