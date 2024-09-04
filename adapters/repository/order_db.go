@@ -44,6 +44,18 @@ func (o *orderRepositoryDB) FindOrderByUserId(userId uint) ([]domain.Order, erro
 	return orders, nil
 }
 
+// FindOrderByUserIdAndStatus implements ports.OrderRepository.
+func (o *orderRepositoryDB) FindOrderByUserIdAndStatus(userId uint, orderStatus domain.OrderStatus) ([]domain.Order, error) {
+	var orders []domain.Order
+
+	err := o.db.Model(&domain.Order{}).Where("user_id = ? AND status = ?", userId, orderStatus).Find(&orders).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
+
 // FindCartItemByCartId implements ports.OrderRepository.
 func (o *orderRepositoryDB) FindCartItemByUserId(userId uint) ([]domain.CartItem, error) {
 	var cartItems []domain.CartItem

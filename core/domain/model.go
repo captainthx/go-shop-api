@@ -130,8 +130,8 @@ type OrderItem struct {
 
 type Transaction struct {
 	gorm.Model
-	OrderID uuid.UUID `json:"order_id" `
-	Amount  float64   `json:"amount" gorm:"type:decimal(7,2);"`
-	Status  string    `json:"status"`
-	PayTime time.Time `json:"pay_time"`
+	OrderID     uint      `json:"order_id"`
+	OrderNumber uuid.UUID `json:"order_number" `
+	Amount      float64   `json:"amount" gorm:"type:decimal(7,2);"`
+	PayTime     time.Time `json:"pay_time"`
 }

@@ -48,6 +48,21 @@ func (h *httpOrderhandler) GetOrderHistoryList(c *gin.Context) {
 	c.JSON(http.StatusOK, orderHistories)
 }
 
+func (h *httpOrderhandler) GetOrderListByStatus(c *gin.Context) {
+	user := c.MustGet("user").(*domain.User)
+	serchOrder := &request.FindOrderByStatusRequest{
+		UserID: user.ID,
+		Status: domain.OrderStatus(c.Query("status")),
+	}
+	orderHistories, err := h.service.GetOrderByStatus(serchOrder)
+	if err != nil {
+		logs.Error(err)
+		HandlerError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, orderHistories)
+}
+
 func (h *httpOrderhandler) CancelOrder(c *gin.Context) {
 	orderId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

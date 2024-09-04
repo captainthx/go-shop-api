@@ -116,6 +116,16 @@ func initRoute(db *gorm.DB) {
 	// Protected routes
 	router.Use(RequireAuth)
 
+	userRepo := repository.NewUserRepositoryDB(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := handler.NewHttpUserHandler(userService)
+
+	// user router
+
+	user := router.Group("/v1/user")
+
+	user.PUT("/avatar", userHandler.UpdateUserAvatar)
+
 	cartItemRepo := repository.NewCartItemRepositoryDB(db)
 	cartItemService := service.NewCartItemService(cartItemRepo)
 	cartItemHandler := handler.NewHttpCartItemHandler(cartItemService)
@@ -136,8 +146,18 @@ func initRoute(db *gorm.DB) {
 	order := router.Group("/v1/order")
 
 	order.GET("/", orderHandler.GetOrderHistoryList)
+	order.GET("/search", orderHandler.GetOrderListByStatus)
 	order.POST("/", orderHandler.CreateOrder)
 	order.POST("/cancel/:id", orderHandler.CancelOrder)
+
+	transactionRepo := repository.NewTransactionRepositoryDB(db)
+	transactionService := service.NewTransactionService(transactionRepo)
+	transactionHandler := handler.NewHttpTransactionHandler(transactionService)
+
+	// transaction router
+	transaction := router.Group("/v1/transaction")
+	transaction.POST("/", transactionHandler.CreateTransaction)
+	transaction.PUT("/", transactionHandler.UpdateTransaction)
 
 	// Admin routes
 	router.Use(adminOnly)

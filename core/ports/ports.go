@@ -22,8 +22,13 @@ type AuthRepository interface {
 }
 
 type UserRepository interface {
-	FindByID(id uint) (*domain.User, error)
+	FindByUserId(id uint) (*domain.User, error)
 	FindOrderByUser(user *domain.User) ([]domain.Order, error)
+	UpdateAvartar(user *domain.User) error
+}
+
+type UserService interface {
+	UpdateUserAvatar(request *request.UpdateUserAvatarRequest) error
 }
 
 type FileService interface {
@@ -62,6 +67,7 @@ type OrderRepository interface {
 	CreateOrder(*domain.Order) error
 	CreateOrderItems(orderItem []domain.OrderItem) error
 	FindOrderByUserId(userId uint) ([]domain.Order, error)
+	FindOrderByUserIdAndStatus(userId uint, orderStatus domain.OrderStatus) ([]domain.Order, error)
 	FindOrderByID(orderId uint) (*domain.Order, error)
 	FindOrderByStatus(orderStatus domain.OrderStatus) ([]domain.Order, error)
 	FindCartItemByUserId(userId uint) ([]domain.CartItem, error)
@@ -75,7 +81,20 @@ type OrderRepository interface {
 
 type OrderService interface {
 	CreateOrder(request *request.NewOrderReuqest) (*response.OrderResponse, error)
-	GetOrderByStatus(orderStatus string) ([]domain.Order, error)
+	GetOrderByStatus(request *request.FindOrderByStatusRequest) ([]response.OrderHistoryResponse, error)
 	GetOrderHistory(user *domain.User) ([]response.OrderHistoryResponse, error)
 	CancelOrder(orderId uint) error
+}
+
+type TransactionRepository interface {
+	CreateTransaction(payment *domain.Transaction) error
+	UpdateTransaction(payment *domain.Transaction) error
+	UpdateOrder(order *domain.Order) error
+	FindTransactionByOrderNumber(orderNumber uuid.UUID) (*domain.Transaction, error)
+	FindOrderByOrderNumber(orderNumber uuid.UUID) (*domain.Order, error)
+}
+
+type TransactionService interface {
+	CreateTransaction(request *request.NewTransactionRequest) error
+	UpdateTransaction(request *request.UpdateTransactionRequest) (*domain.Transaction, error)
 }

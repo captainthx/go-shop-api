@@ -90,8 +90,59 @@ func (o *orderService) CreateOrder(request *request.NewOrderReuqest) (*response.
 }
 
 // GetOrderByStatus implements ports.OrderService.
-func (o *orderService) GetOrderByStatus(orderStatus string) ([]domain.Order, error) {
-	return nil, nil
+func (o *orderService) GetOrderByStatus(request *request.FindOrderByStatusRequest) ([]response.OrderHistoryResponse, error) {
+
+	orders, err := o.repo.FindOrderByUserIdAndStatus(request.UserID, request.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return []response.OrderHistoryResponse{}, nil
+	}
+
+	responses := make([]response.OrderHistoryResponse, 0, len(orders))
+	for _, order := range orders {
+		orderItems, err := o.repo.FindOrderItemByOrderNumber(order.OrderNumber)
+		if err != nil {
+			return nil, err
+		}
+		productIds := make([]uint, 0, len(orderItems))
+
+		for _, orderItem := range orderItems {
+			productIds = append(productIds, orderItem.ProductID)
+		}
+
+		products, err := o.repo.FindProductByIds(productIds)
+		if err != nil {
+			return nil, err
+		}
+
+		productMap, err := getProductMap(products)
+		if err != nil {
+			logs.Error(err)
+			return nil, err
+		}
+		orderItemsResponse := make([]response.OrderItemResponse, 0, len(orderItems))
+		for _, orderItem := range orderItems {
+			if product, ok := productMap[orderItem.ProductID]; ok {
+				orderItemsResponse = append(orderItemsResponse, response.OrderItemResponse{
+					ProductName: product.Name,
+					Quantity:    orderItem.Quantity,
+					Price:       orderItem.Price,
+				})
+			}
+		}
+
+		responses = append(responses, response.OrderHistoryResponse{
+			ID:          order.ID,
+			OrderNumber: order.OrderNumber,
+			Status:      order.Status,
+			TotalPay:    order.TotalPay,
+			OrderItems:  orderItemsResponse,
+		})
+	}
+	return responses, nil
 }
 
 // GetOrderHistory implements ports.OrderService.
@@ -100,6 +151,9 @@ func (o *orderService) GetOrderHistory(user *domain.User) ([]response.OrderHisto
 	orders, err := o.repo.FindOrderByUserId(user.ID)
 	if err != nil {
 		return nil, err
+	}
+	if len(orders) == 0 {
+		return []response.OrderHistoryResponse{}, nil
 	}
 
 	responses := make([]response.OrderHistoryResponse, 0, len(orders))
@@ -179,17 +233,4 @@ func (o *orderService) CancelOrder(orderId uint) error {
 	}
 
 	return nil
-}
-
-func getOrderItemsResponse(orderItems []domain.OrderItem, product domain.Product) []response.OrderItemResponse {
-	var orderItemResponse = make([]response.OrderItemResponse, 0, len(orderItems))
-
-	for _, orderItem := range orderItems {
-		orderItemResponse = append(orderItemResponse, response.OrderItemResponse{
-			ProductName: product.Name,
-			Quantity:    orderItem.Quantity,
-			Price:       orderItem.Price,
-		})
-	}
-	return orderItemResponse
 }

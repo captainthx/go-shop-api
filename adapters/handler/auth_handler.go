@@ -10,15 +10,15 @@ import (
 
 // all the handler interfaces are defined here
 
-type httpUserHandler struct {
+type httpAuthHandler struct {
 	service ports.AuthService
 }
 
-func NewHttpAuthHandler(service ports.AuthService) *httpUserHandler {
-	return &httpUserHandler{service: service}
+func NewHttpAuthHandler(service ports.AuthService) *httpAuthHandler {
+	return &httpAuthHandler{service: service}
 }
 
-func (h *httpUserHandler) SignUp(c *gin.Context) {
+func (h *httpAuthHandler) SignUp(c *gin.Context) {
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +38,7 @@ func (h *httpUserHandler) SignUp(c *gin.Context) {
 	})
 }
 
-func (h *httpUserHandler) SignIn(c *gin.Context) {
+func (h *httpAuthHandler) SignIn(c *gin.Context) {
 
 	user := new(domain.User)
 	if err := c.ShouldBindJSON(user); err != nil {

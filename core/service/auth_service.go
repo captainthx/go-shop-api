@@ -17,16 +17,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userService struct {
+type authService struct {
 	repo ports.AuthRepository
 }
 
 func NewAuthService(repo ports.AuthRepository) ports.AuthService {
-	return &userService{repo: repo}
+	return &authService{repo: repo}
 }
 
-// CreateUser implements UserService.
-func (u *userService) CreateUser(user *domain.User) error {
+// CreateUser implements authService.
+func (u *authService) CreateUser(user *domain.User) error {
 	if invalid, err := utils.InvalidName(user.Name); invalid || err != nil {
 		logs.Error(err)
 		return errs.AppError{
@@ -67,7 +67,7 @@ func (u *userService) CreateUser(user *domain.User) error {
 }
 
 // LogIn implements ports.AuthService.
-func (u *userService) LogIn(username string, password string) (*response.LoginResponse, error) {
+func (u *authService) LogIn(username string, password string) (*response.LoginResponse, error) {
 	if invalid, err := utils.InvalidUsername(username); invalid || err != nil {
 		logs.Error(err)
 		return nil, errs.NewBadRequestError(err.Error())
